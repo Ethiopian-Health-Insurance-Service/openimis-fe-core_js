@@ -12,6 +12,7 @@ import DatePicker from "react-multi-date-picker";
 import nepali from "../calendars/NepalCalendar";
 import nepali_en from "../calendars/NepaliLocaleEn";
 import nepali_np from "../calendars/NepaliLocaleNp";
+import $ from "jquery";
 
 import gregorian from "react-date-object/calendars/gregorian";
 import gregorian_en from "react-date-object/locales/gregorian_en";
@@ -47,6 +48,12 @@ class openIMISDatePicker extends Component {
   };
 
   secondaryCalendarDateChange = (d) => {
+    this.setState({ value: toISODate(d.toDate()) }, (i) =>
+      !!this.props.onChange ? this.props.onChange(toISODate(d.toDate())) : null,
+    );
+  };
+
+  ethiopianCalendarDateChange = (d) => {
     this.setState({ value: toISODate(d.toDate()) }, (i) =>
       !!this.props.onChange ? this.props.onChange(toISODate(d.toDate())) : null,
     );
@@ -100,6 +107,7 @@ class openIMISDatePicker extends Component {
       format = "DD-MM-YYYY",
       reset,
       isSecondaryCalendarEnabled,
+      isEthiopianCalendarEnabled = true,
       modulesManager,
       minDate,
       maxDate,
@@ -126,6 +134,33 @@ class openIMISDatePicker extends Component {
             highlightToday={false}
             calendar={this.getDictionaryValueOrDefault(this.secondaryCalendarsOptions, secondCalendarType)}
             locale={this.getDictionaryValueOrDefault(this.secondaryCalendarsLocaleOptions, secondCalendarLocale)}
+          >
+            <button style={{ margin: "5px" }} onClick={(e) => this.clearDate(e)}>
+              {formatMessage(intl, "core", "calendar.clearButton")}
+            </button>
+          </DatePicker>
+        </FormControl>
+      );
+    } else if(isEthiopianCalendarEnabled){
+      const ethiopianCalendarFormatting = modulesManager.getConf("fe-core", "ethiopianCalendarFormatting", format);
+      const calendar = $.calendars.instance('ethiopian');
+      const calendarLocale = $.calendars.instance('ethiopian','am')
+
+      return (
+        <FormControl fullWidth={fullWidth}>
+          <label className={classes.label}>
+            {!!label ? formatMessage(intl, module, label).concat(required ? " *" : "") : null}
+          </label>
+          <DatePicker
+            format={ethiopianCalendarFormatting}
+            disabled={readOnly}
+            value={this.state.value ? this.moveByOneDay(new Date(this.state.value)) : null}
+            {...((!!minDate || disablePast) && this.setMinDate())}
+            {...(!!maxDate && { maxDate: this.moveByOneDay(new Date(maxDate)) })}
+            onChange={this.ethiopianCalendarDateChange}
+            highlightToday={false}
+            calendar={calendar}
+            locale={calendarLocale}
           >
             <button style={{ margin: "5px" }} onClick={(e) => this.clearDate(e)}>
               {formatMessage(intl, "core", "calendar.clearButton")}
