@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, useState } from "react";
 import { connect } from "react-redux";
 import moment from "moment";
 import { withTheme, withStyles } from "@material-ui/core/styles";
@@ -12,7 +12,11 @@ import DatePicker from "react-multi-date-picker";
 import nepali from "../calendars/NepalCalendar";
 import nepali_en from "../calendars/NepaliLocaleEn";
 import nepali_np from "../calendars/NepaliLocaleNp";
-import $ from "jquery";
+import ethiopian from "../calendars/EthiopianCalendar";
+import ethiopian_en from "../calendars/EthiopianLocaleEn";
+import ethiopian_am from "../calendars/EthiopianLocaleAm";
+import { EtCalendar } from "et-calendar-react";
+
 
 import gregorian from "react-date-object/calendars/gregorian";
 import gregorian_en from "react-date-object/locales/gregorian_en";
@@ -72,12 +76,15 @@ class openIMISDatePicker extends Component {
 
   secondaryCalendarsOptions = {
     "nepali": nepali,
+    "ethiopian": ethiopian,
     "default": gregorian,
   };
 
   secondaryCalendarsLocaleOptions = {
     "nepali_en": nepali_en,
     "nepali_np": nepali_np,
+    "ethiopian_en": ethiopian_en,
+    "ethiopian_am": ethiopian_am,
     "default": gregorian_en,
   };
 
@@ -107,12 +114,13 @@ class openIMISDatePicker extends Component {
       format = "DD-MM-YYYY",
       reset,
       isSecondaryCalendarEnabled,
-      isEthiopianCalendarEnabled = true,
       modulesManager,
       minDate,
       maxDate,
       ...otherProps
     } = this.props;
+
+    const enableEthiopianCalendar = modulesManager.getConf("fe-core", "enableEthiopianCalendar", true);
 
     if (isSecondaryCalendarEnabled) {
       const secondCalendarFormatting = modulesManager.getConf("fe-core", "secondCalendarFormatting", format);
@@ -141,31 +149,23 @@ class openIMISDatePicker extends Component {
           </DatePicker>
         </FormControl>
       );
-    } else if(isEthiopianCalendarEnabled){
-      const ethiopianCalendarFormatting = modulesManager.getConf("fe-core", "ethiopianCalendarFormatting", format);
-      const calendar = $.calendars.instance('ethiopian');
-      const calendarLocale = $.calendars.instance('ethiopian','am')
-
+    } else if (enableEthiopianCalendar) {
       return (
         <FormControl fullWidth={fullWidth}>
           <label className={classes.label}>
             {!!label ? formatMessage(intl, module, label).concat(required ? " *" : "") : null}
           </label>
-          <DatePicker
-            format={ethiopianCalendarFormatting}
+          <EtCalendar
+            value={this.state.value}
+            onChange={this.dateChange}
             disabled={readOnly}
-            value={this.state.value ? this.moveByOneDay(new Date(this.state.value)) : null}
-            {...((!!minDate || disablePast) && this.setMinDate())}
-            {...(!!maxDate && { maxDate: this.moveByOneDay(new Date(maxDate)) })}
-            onChange={this.ethiopianCalendarDateChange}
-            highlightToday={false}
-            calendar={calendar}
-            locale={calendarLocale}
-          >
-            <button style={{ margin: "5px" }} onClick={(e) => this.clearDate(e)}>
-              {formatMessage(intl, "core", "calendar.clearButton")}
-            </button>
-          </DatePicker>
+            minDate={minDate}
+            maxDate={maxDate}
+            calendarType={true}
+            lang={"am"}
+            placeholder={false}
+            label={null}
+          />
         </FormControl>
       );
     } else {
