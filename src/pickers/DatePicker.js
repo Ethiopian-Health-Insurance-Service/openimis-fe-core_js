@@ -12,9 +12,6 @@ import DatePicker from "react-multi-date-picker";
 import nepali from "../calendars/NepalCalendar";
 import nepali_en from "../calendars/NepaliLocaleEn";
 import nepali_np from "../calendars/NepaliLocaleNp";
-import ethiopian from "../calendars/EthiopianCalendar";
-import ethiopian_en from "../calendars/EthiopianLocaleEn";
-import ethiopian_am from "../calendars/EthiopianLocaleAm";
 import { EtCalendar } from "et-calendar-react";
 
 
@@ -76,15 +73,12 @@ class openIMISDatePicker extends Component {
 
   secondaryCalendarsOptions = {
     "nepali": nepali,
-    "ethiopian": ethiopian,
     "default": gregorian,
   };
 
   secondaryCalendarsLocaleOptions = {
     "nepali_en": nepali_en,
     "nepali_np": nepali_np,
-    "ethiopian_en": ethiopian_en,
-    "ethiopian_am": ethiopian_am,
     "default": gregorian_en,
   };
 
