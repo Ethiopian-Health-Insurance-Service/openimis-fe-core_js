@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, useState } from "react";
 import { connect } from "react-redux";
 import moment from "moment";
 import { withTheme, withStyles } from "@material-ui/core/styles";
@@ -12,6 +12,8 @@ import DatePicker from "react-multi-date-picker";
 import nepali from "../calendars/NepalCalendar";
 import nepali_en from "../calendars/NepaliLocaleEn";
 import nepali_np from "../calendars/NepaliLocaleNp";
+import { EtCalendar } from "et-calendar-react";
+
 
 import gregorian from "react-date-object/calendars/gregorian";
 import gregorian_en from "react-date-object/locales/gregorian_en";
@@ -47,6 +49,12 @@ class openIMISDatePicker extends Component {
   };
 
   secondaryCalendarDateChange = (d) => {
+    this.setState({ value: toISODate(d.toDate()) }, (i) =>
+      !!this.props.onChange ? this.props.onChange(toISODate(d.toDate())) : null,
+    );
+  };
+
+  ethiopianCalendarDateChange = (d) => {
     this.setState({ value: toISODate(d.toDate()) }, (i) =>
       !!this.props.onChange ? this.props.onChange(toISODate(d.toDate())) : null,
     );
@@ -106,6 +114,8 @@ class openIMISDatePicker extends Component {
       ...otherProps
     } = this.props;
 
+    const enableEthiopianCalendar = modulesManager.getConf("fe-core", "enableEthiopianCalendar", true);
+
     if (isSecondaryCalendarEnabled) {
       const secondCalendarFormatting = modulesManager.getConf("fe-core", "secondCalendarFormatting", format);
       const secondCalendarType = modulesManager.getConf("fe-core", "secondCalendarType", "nepali");
@@ -131,6 +141,25 @@ class openIMISDatePicker extends Component {
               {formatMessage(intl, "core", "calendar.clearButton")}
             </button>
           </DatePicker>
+        </FormControl>
+      );
+    } else if (enableEthiopianCalendar) {
+      return (
+        <FormControl fullWidth={fullWidth}>
+          <label className={classes.label}>
+            {!!label ? formatMessage(intl, module, label).concat(required ? " *" : "") : null}
+          </label>
+          <EtCalendar
+            value={this.state.value}
+            onChange={this.dateChange}
+            disabled={readOnly}
+            minDate={minDate}
+            maxDate={maxDate}
+            calendarType={true}
+            lang={"am"}
+            placeholder={false}
+            label={null}
+          />
         </FormControl>
       );
     } else {
